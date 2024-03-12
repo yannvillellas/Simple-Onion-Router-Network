@@ -66,13 +66,3 @@ export async function user(userId: number) {
 
   return server;
 }
-
-async function sendMessage(userPort: number, message: string) {
-  await fetch(`http://localhost:${userPort}/message`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ message }),
-  });
-}
