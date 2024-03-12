@@ -1,4 +1,4 @@
-import { simpleOnionRouter } from "./simpleOnionRouter";
+import { simpleOnionRouter, registerNodesOnRegistry } from "./simpleOnionRouter";
 
 export async function launchOnionRouters(n: number) {
   const promises = [];
@@ -10,6 +10,8 @@ export async function launchOnionRouters(n: number) {
   }
 
   const servers = await Promise.all(promises);
+
+  await registerNodesOnRegistry(n);
 
   return servers;
 }

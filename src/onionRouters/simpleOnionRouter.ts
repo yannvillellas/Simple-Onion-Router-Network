@@ -1,6 +1,6 @@
 import bodyParser from "body-parser";
 import express from "express";
-import { BASE_ONION_ROUTER_PORT } from "../config";
+import { BASE_ONION_ROUTER_PORT, REGISTRY_PORT } from "../config";
 
 let lastReceivedEncryptedMessage: string | null = null;
 let lastReceivedDecryptedMessage: string | null = null;
@@ -27,6 +27,14 @@ export async function simpleOnionRouter(nodeId: number) {
     res.json({ result: lastMessageDestination });
   });
 
+  onionRouter.get("/getPrivateKey", async (req, res) => {
+    const response = await fetch(
+      `http://localhost:${REGISTRY_PORT}/getPrivateKey/${nodeId}`
+    );
+    const data = await response.json();
+    res.status(response.status).json(data);
+  });
+
   const server = onionRouter.listen(BASE_ONION_ROUTER_PORT + nodeId, () => {
     console.log(
       `Onion router ${nodeId} is listening on port ${
@@ -36,4 +44,19 @@ export async function simpleOnionRouter(nodeId: number) {
   });
 
   return server;
+}
+
+export async function registerNodesOnRegistry(n: number) {
+  for (let nodeId = 0; nodeId < n; nodeId++) {
+    const response = await fetch(`http://localhost:${REGISTRY_PORT}/registerNode`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({nodeId}),
+    });
+    if (!response.ok) {
+      console.error(`Failed to register node ${nodeId} on the registry`, response.status);
+    }
+  }
 }
